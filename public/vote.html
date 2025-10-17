@@ -1,52 +1,129 @@
-```html
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="tr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Oy Ver - Münazara</title>
-<style>
-body{ font-family: Arial, sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; background:#f3f4f6 }
-.box{ padding:22px; border-radius:12px; box-shadow:0 6px 20px rgba(2,6,23,0.08); background:white; width:320px; text-align:center }
-button{ display:block; width:100%; margin:10px 0; padding:12px; font-size:18px; border-radius:10px; cursor:pointer }
-.primary{ background:#2563eb; color:white; border:none }
-.secondary{ background:#10b981; color:white; border:none }
-#status{ margin-top:12px; min-height:20px }
-</style>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Oy Ver - Münazara</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: #f3f4f6;
+            font-size: 16px;
+        }
+        .box {
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(2, 6, 23, 0.12);
+            background: white;
+            max-width: 320px;
+            width: 100%;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .box:hover {
+            transform: translateY(-2px);
+        }
+        h2 {
+            margin: 0 0 20px;
+            font-size: 24px;
+            color: #1e293b;
+        }
+        button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: none;
+            transition: background 0.3s, transform 0.1s;
+        }
+        button:hover {
+            transform: scale(1.02);
+        }
+        .primary {
+            background: #2563eb;
+            color: white;
+        }
+        .primary:hover {
+            background: #1e40af;
+        }
+        .secondary {
+            background: #10b981;
+            color: white;
+        }
+        .secondary:hover {
+            background: #059669;
+        }
+        #status {
+            margin-top: 12px;
+            min-height: 20px;
+            color: #64748b;
+            font-size: 14px;
+            padding: 8px;
+            border-radius: 6px;
+        }
+        .loading {
+            color: #94a3b8;
+            font-style: italic;
+        }
+        .error {
+            color: #ef4444;
+            background: #fee2e2;
+        }
+        .success {
+            color: #10b981;
+            background: #d1fae5;
+        }
+    </style>
 </head>
 <body>
-<div class="box">
-<h2>Oyunu Kullan</h2>
-<button id="teamA" class="primary">Takım A</button>
-<button id="teamB" class="secondary">Takım B</button>
-<div id="status"></div>
-</div>
+    <div class="box">
+        <h2>Oyunu Kullan</h2>
+        <button id="teamA" class="primary">Takım A</button>
+        <button id="teamB" class="secondary">Takım B</button>
+        <div id="status"></div>
+    </div>
 
+    <script>
+        async function sendVote(choice, button) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = 'Yükleniyor...';
+            statusEl.className = 'loading';
 
-<script>
-async function sendVote(choice){
-try{
-const res = await fetch('/api/vote', {
-method: 'POST',
-headers: {'Content-Type':'application/json'},
-body: JSON.stringify({ choice })
-});
-const data = await res.json();
-if(res.status === 429) document.getElementById('status').textContent = data.error || 'Zaten oy kullandınız.';
-else if(data.ok) document.getElementById('status').textContent = 'Oy kaydedildi. Teşekkürler!';
-else document.getElementById('status').textContent = 'Hata: ' + (data.error || 'Bilinmeyen');
-}catch(e){
-document.getElementById('status').textContent = 'Sunucuya bağlanılamıyor.';
-}
-}
+            button.disabled = true; // Butonu geçici olarak devre dışı bırak
+            try {
+                const res = await fetch('/api/vote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ choice })
+                });
+                const data = await res.json();
+                if (res.status === 429) {
+                    statusEl.textContent = data.error || 'Zaten oy kullandınız.';
+                    statusEl.className = 'error';
+                } else if (data.ok) {
+                    statusEl.textContent = 'Oy kaydedildi. Teşekkürler!';
+                    statusEl.className = 'success';
+                } else {
+                    statusEl.textContent = 'Hata: ' + (data.error || 'Bilinmeyen');
+                    statusEl.className = 'error';
+                }
+            } catch (e) {
+                statusEl.textContent = 'Sunucuya bağlanılamıyor. Lütfen tekrar deneyin.';
+                statusEl.className = 'error';
+            }
+            button.disabled = false; // Butonu tekrar aktif et
+        }
 
-
-document.getElementById('teamA').addEventListener('click', () => sendVote('teamA'));
-document.getElementById('teamB').addEventListener('click', () => sendVote('teamB'));
-</script>
+        document.getElementById('teamA').addEventListener('click', () => sendVote('teamA', document.getElementById('teamA')));
+        document.getElementById('teamB').addEventListener('click', () => sendVote('teamB', document.getElementById('teamB')));
+    </script>
 </body>
 </html>
-```
-
-
----
