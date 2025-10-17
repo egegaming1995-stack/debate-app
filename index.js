@@ -27,6 +27,13 @@ const io = new Server(server, { cors: { origin: '*' } });
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+// public klasörünü static olarak serv et
+app.use(express.static(path.join(__dirname, 'public')));
+
+// kök URL yönlendirme (display sayfasına)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/display.html'));
+});
 
 // oy gönderme API
 app.post('/api/vote', (req, res) => {
@@ -65,6 +72,4 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/display.html'));
-});
+
