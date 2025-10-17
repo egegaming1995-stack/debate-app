@@ -74,6 +74,6 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
 // /vote → oy verme sayfası
 app.get('/vote', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/vote.html'));
+  res.sendFile(path.join(__dirname, 'munazara-oylama.onrender.com/vote.html'));
 });
 
