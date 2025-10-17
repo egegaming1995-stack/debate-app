@@ -1,0 +1,52 @@
+```html
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Oy Ver - Münazara</title>
+<style>
+body{ font-family: Arial, sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; background:#f3f4f6 }
+.box{ padding:22px; border-radius:12px; box-shadow:0 6px 20px rgba(2,6,23,0.08); background:white; width:320px; text-align:center }
+button{ display:block; width:100%; margin:10px 0; padding:12px; font-size:18px; border-radius:10px; cursor:pointer }
+.primary{ background:#2563eb; color:white; border:none }
+.secondary{ background:#10b981; color:white; border:none }
+#status{ margin-top:12px; min-height:20px }
+</style>
+</head>
+<body>
+<div class="box">
+<h2>Oyunu Kullan</h2>
+<button id="teamA" class="primary">Takım A</button>
+<button id="teamB" class="secondary">Takım B</button>
+<div id="status"></div>
+</div>
+
+
+<script>
+async function sendVote(choice){
+try{
+const res = await fetch('/api/vote', {
+method: 'POST',
+headers: {'Content-Type':'application/json'},
+body: JSON.stringify({ choice })
+});
+const data = await res.json();
+if(res.status === 429) document.getElementById('status').textContent = data.error || 'Zaten oy kullandınız.';
+else if(data.ok) document.getElementById('status').textContent = 'Oy kaydedildi. Teşekkürler!';
+else document.getElementById('status').textContent = 'Hata: ' + (data.error || 'Bilinmeyen');
+}catch(e){
+document.getElementById('status').textContent = 'Sunucuya bağlanılamıyor.';
+}
+}
+
+
+document.getElementById('teamA').addEventListener('click', () => sendVote('teamA'));
+document.getElementById('teamB').addEventListener('click', () => sendVote('teamB'));
+</script>
+</body>
+</html>
+```
+
+
+---
