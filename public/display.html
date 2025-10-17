@@ -1,52 +1,116 @@
-<!doctype html>
-body{ font-family: Inter, Arial, sans-serif; background:#0f172a; color:#fff; display:flex; align-items:center; justify-content:center; height:100vh; margin:0 }
-.card{ background:linear-gradient(180deg,#111827 0%, #0b1220 100%); padding:36px; border-radius:16px; box-shadow:0 10px 30px rgba(2,6,23,0.6); min-width:480px; text-align:center }
-h1{ margin:0 0 12px; font-size:28px }
-.counts{ display:flex; gap:40px; justify-content:center; margin-top:18px }
-.choice{ min-width:160px }
-.num{ font-size:72px; margin-top:6px }
-.label{ font-size:14px; color:#cbd5e1 }
-#reset{ margin-top:20px; padding:8px 12px; border-radius:10px; cursor:pointer; background:#ef4444; border:none; color:white }
-</style>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canlı Oylama</title>
+    <style>
+        body {
+            font-family: Inter, Arial, sans-serif;
+            background: #0f172a;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden; /* Sayfanın taşmasını önler */
+        }
+        .card {
+            background: linear-gradient(180deg, #111827 0%, #0b1220 100%);
+            padding: 36px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(2, 6, 23, 0.6);
+            min-width: 480px;
+            text-align: center;
+            max-width: 600px; /* Kartın genişliğini sınırla */
+        }
+        h1 {
+            margin: 0 0 12px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .counts {
+            display: flex;
+            gap: 60px; /* Boşluğu artırarak elemanları ayır */
+            justify-content: center;
+            margin-top: 24px; /* Üstten daha fazla boşluk */
+        }
+        .choice {
+            min-width: 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .num {
+            font-size: 64px; /* Biraz küçült, okunabilirlik için */
+            margin-top: 12px;
+            font-weight: 700;
+            color: #f1f5f9; /* Hafif açık ton, kontrastı artırır */
+            transition: color 0.3s; /* Hover efekti için */
+        }
+        .num:hover {
+            color: #34d399; /* Üzerine gelince yeşil ton */
+        }
+        .label {
+            font-size: 16px; /* Etiketleri biraz büyüt */
+            color: #cbd5e1;
+            text-transform: uppercase; /* Büyük harf, modern görünüm */
+            letter-spacing: 1px;
+        }
+        #reset {
+            margin-top: 24px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #ef4444;
+            border: none;
+            color: white;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        #reset:hover {
+            background: #dc2626; /* Hoverda renk koyulaşır */
+        }
+    </style>
 </head>
 <body>
-<div class="card">
-<h1>Canlı Oylama</h1>
-<div class="counts">
-<div class="choice">
-<div class="label">Takım A</div>
-<div id="teamA" class="num">0</div>
-</div>
-<div class="choice">
-<div class="label">Takım B</div>
-<div id="teamB" class="num">0</div>
-</div>
-</div>
-<button id="reset">Sıfırla (Gerekirse)</button>
-</div>
+    <div class="card">
+        <h1>Canlı Oylama</h1>
+        <div class="counts">
+            <div class="choice">
+                <div class="label">Takım A</div>
+                <div id="teamA" class="num">0</div>
+            </div>
+            <div class="choice">
+                <div class="label">Takım B</div>
+                <div id="teamB" class="num">0</div>
+            </div>
+        </div>
+        <button id="reset">Sıfırla (Gerekirse)</button>
+    </div>
 
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const teamAEl = document.getElementById('teamA');
+        const teamBEl = document.getElementById('teamB');
+        const resetBtn = document.getElementById('reset');
 
-<script src="/socket.io/socket.io.js"></script>
-<script>
-const socket = io();
-const teamAEl = document.getElementById('teamA');
-const teamBEl = document.getElementById('teamB');
-const resetBtn = document.getElementById('reset');
+        socket.on('votes-updated', (votes) => {
+            teamAEl.textContent = votes.teamA;
+            teamBEl.textContent = votes.teamB;
+        });
 
-
-socket.on('votes-updated', (votes) => {
-teamAEl.textContent = votes.teamA;
-teamBEl.textContent = votes.teamB;
-});
-
-
-resetBtn.addEventListener('click', async () => {
-if(!confirm('Oyları sıfırlamak istediğine emin misin?')) return;
-try{
-const res = await fetch('/api/reset', { method: 'POST' });
-if(res.ok) alert('Sıfırlandı');
-}catch(e){ alert('Hata'); }
-});
-</script>
+        resetBtn.addEventListener('click', async () => {
+            if (!confirm('Oyları sıfırlamak istediğine emin misin?')) return;
+            try {
+                const res = await fetch('/api/reset', { method: 'POST' });
+                if (res.ok) alert('Sıfırlandı');
+            } catch (e) {
+                alert('Hata');
+            }
+        });
+    </script>
 </body>
 </html>
